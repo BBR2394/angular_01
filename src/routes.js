@@ -171,11 +171,12 @@ routes.get('/hi', (req, res) => {
   console.log(final)
   console.log("ET LA C4EST LA FIN")
   Promise.all([promiseJoke, promiseCatFactsOne, promiseCatFactsTwo, promiseCatFactsThree, promiseBeer, promiseGPS, promiseTaco]).then(function(values) {
+    const finalAnswer = {"gps": values[5], "joke" : values[0], "catFact" : [values[1], values[2], values[3] ] , "beer": values[4], "taco" : values[6]}
     console.log("ICI LE promise : ", values);
     //const toSendAsResponse = { "gps": promiseGPS, "beer": promiseBeer}
-    console.log(values)
+    console.log(finalAnswer)
     //console.log("la reponse a envoyer : \n", toSendAsResponse)
-    res.send(values)
+    res.send(finalAnswer)
   });
   //const theJokes = getJokes(urlJoke);
   //const catsFacts = getCatFacts(urlCatFacts);
