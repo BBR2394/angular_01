@@ -14,10 +14,14 @@ routes.get('/', (req, res) => {
 async function getJokes(url) {
   try {
     const response = await axios.get(url);
-    const theJoke = response.data.joke | response.data.setup + response.data.delivery
+    let theJoke = response.data.joke //| response.data.setup + response.data.delivery
     console.log(response.data.joke);
+    if (response.data.joke == undefined) {
+      console.log("C EST UNDEFINEIED")
+      theJoke = response.data.setup + " " + response.data.delivery
+    }
     console.log(response.data.setup, "  ", response.data.delivery)
-    return {"joke" : theJoke}
+    return theJoke
   } catch (error) {
     //console.error(error);
     return error
@@ -28,7 +32,7 @@ async function getCatFacts(url) {
   try {
     const response = await axios.get(url);
     console.log(response.data.text);
-    return {"catFact": response.data.text}
+    return response.data.text
   } catch (error) {
     //console.error(error);
     return error
@@ -37,9 +41,13 @@ async function getCatFacts(url) {
 
 async function getPosRizom(url) {
   try {
-    const response = await axios.get(url);
+    const response = await axios.get(url, {
+      params:{
+        q: "41+rue+du+port+Lille"
+      }
+    });
     console.log(response.data);
-    return response
+    return { "lat": response.data["features"][0]["geometry"]["coordinates"][1], "lgn": response.data["features"][0]["geometry"]["coordinates"][0]}
   } catch (error) {
     //console.error(error);
     return error
@@ -50,7 +58,7 @@ async function getBeer(url) {
   try {
     const response = await axios.get(url);
     console.log("la biere ! : ", response.data[0].name, " description : ", response.data[0].description);
-    return {"beer":{"name" : response.data[0].name, "description": response.data[0].description} }
+    return {"name" : response.data[0].name, "description": response.data[0].description} 
     //return ["beer":{"name" : response.data[0].name, "description": response.data[0].description} ]
   } catch (error) {
     //console.error(error);
@@ -61,8 +69,8 @@ async function getBeer(url) {
 async function getTacosRecipes(url) {
   try {
     const response = await axios.get(url);
-    console.log(response.data);
-    return response
+    //console.log(response.data);
+    return response.data["condiment"]["recipe"]
   } catch (error) {
     //console.error(error);
     return error
@@ -151,15 +159,22 @@ routes.get('/hi', (req, res) => {
   //   // always executed
   // });  
 
-  const promiseOne = getJokes(urlJoke);
-  const promiseTwo = getCatFacts(urlCatFacts);
-  const promiseThree = getBeer(urlPunk);
+  const promiseJoke = getJokes(urlJoke);
+  const promiseCatFactsOne = getCatFacts(urlCatFacts);
+  const promiseCatFactsTwo = getCatFacts(urlCatFacts);
+  const promiseCatFactsThree = getCatFacts(urlCatFacts);
+  const promiseBeer = getBeer(urlPunk);
+  const promiseGPS = getPosRizom(urlGouvGeo);
+  const promiseTaco = getTacosRecipes(urlTaco) ;
   const finalRes = "--> et au foinal nous avons : \n" + theJoke + '\n' + theCatsFacts + '\n'
   console.log(finalRes)
   console.log(final)
   console.log("ET LA C4EST LA FIN")
-  Promise.all([promiseOne, promiseTwo, promiseThree]).then(function(values) {
+  Promise.all([promiseJoke, promiseCatFactsOne, promiseCatFactsTwo, promiseCatFactsThree, promiseBeer, promiseGPS, promiseTaco]).then(function(values) {
     console.log("ICI LE promise : ", values);
+    //const toSendAsResponse = { "gps": promiseGPS, "beer": promiseBeer}
+    console.log(values)
+    //console.log("la reponse a envoyer : \n", toSendAsResponse)
     res.send(values)
   });
   //const theJokes = getJokes(urlJoke);
